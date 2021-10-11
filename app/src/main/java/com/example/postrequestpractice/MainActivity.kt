@@ -15,10 +15,9 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
     private lateinit var RV: RecyclerView
     private lateinit var btn: Button
+    private lateinit var UD: Button
     private lateinit var users: ArrayList<String>
 
-    lateinit var data:SharedPreferences
-    lateinit var editr :SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         val call: Call<List<TestList?>> = apiInterface!!.doGetListResources()
 
         btn = findViewById(R.id.add)
+        UD = findViewById(R.id.UD)
         RV = findViewById(R.id.rc)
         users = ArrayList()
 
@@ -35,22 +35,21 @@ class MainActivity : AppCompatActivity() {
         RV.layoutManager = LinearLayoutManager(this)
 
 
-        data=getSharedPreferences("users", MODE_PRIVATE)
-        editr=data.edit()
 
         call?.enqueue(object : Callback<List<TestList?>> {
             override fun onResponse(
                 call: Call<List<TestList?>>,
                 response: Response<List<TestList?>>
             ) {
-                Log.d("TAG", response.code().toString() + "")
                 val resource: List<TestList?>? = response.body()
                 if (resource != null) {
                     for(user in resource) {
-                        val username = user?.name
-                        val userloc = user?.location
-                        users.add(username.toString())
-                        users.add(userloc.toString())
+                        val userid = user?.pk.toString()
+                        val username = user?.name.toString()
+                        val userloc = user?.location.toString()
+
+                        users.add( userid +"\n"+ username +"\n"+ userloc )
+
                         RV.adapter?.notifyDataSetChanged()
                         RV.scrollToPosition(users.size-1)
                     }
@@ -66,6 +65,12 @@ class MainActivity : AppCompatActivity() {
         btn.setOnClickListener {
 
             val intent = Intent(this, MainActivity2 ::class.java)
+            startActivity(intent);
+        }
+
+        UD.setOnClickListener {
+
+            val intent = Intent(this, MainActivity3 ::class.java)
             startActivity(intent);
         }
 
